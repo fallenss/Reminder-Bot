@@ -1,5 +1,5 @@
 # Reminder-Bot
-First bot
+First telegram bot
 
 This is the bot who can remind you about whatever you want.
 
