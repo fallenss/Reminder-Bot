@@ -1,15 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from ast import Or;
-import sqlite3;
+import sqlite3
 import telebot;
 import datetime
-from datetime import date, datetime
-import re
+from datetime import date, datetime, tzinfo
+from datetime import timedelta, timezone
 import requests
-from telebot import types;
 from threading import Thread
 from time import sleep
 from sqlite3 import Error
 import configparser
+import sched, time
 
 
 name = '';
@@ -17,11 +19,25 @@ surname = '';
 age = 0;
 config = configparser.ConfigParser()
 config.read("config.ini")
-bot = telebot.TeleBot(config['Telegram']['token'],threaded=False);
+bot = telebot.TeleBot(config['Telegram']['token']);
 conn = sqlite3.connect('db/database.db', check_same_thread=False)
 cursor = conn.cursor()
+s = sched.scheduler(time.time, time.sleep)
 
 
+class UTC3(tzinfo):
+    """tzinfo derived concrete class named "+0530" with offset of 19800"""
+    # can be configured here
+    _offset = timedelta(hours=3)
+    _dst = timedelta(0)
+    _name = "МСК"
+    def utcoffset(self, dt):
+        return self.__class__._offset
+    def dst(self, dt):
+        return self.__class__._dst
+    def tzname(self, dt):
+        return self.__class__._name
+tz = UTC3()
 
 def db_new_user(user_id: int, user_name: str, user_surname: str, username: str):
     try:
@@ -65,12 +81,12 @@ smert_thread.start()
 def start_message(message):
     bot.send_message(message.from_user.id, 'Чего тебе?');
     def chek_in():
+        s.enter(60, 1, chek_in)
         try:
-            while True:
-                us_id = message.from_user.id
-                today = datetime.now().strftime("%Y-%m-%d")
-                totime = datetime.now().strftime("%H:%M")
-                select_event = f"""
+            us_id = message.from_user.id
+            today = datetime.now().strftime("%Y-%m-%d")
+            totime = datetime.now().strftime("%H:%M")
+            select_event = f"""
             SELECT *
             FROM
               Events
@@ -79,20 +95,20 @@ def start_message(message):
             ORDER BY
               time
             """
-                events = execute_read_query(conn, select_event)
-                for event in events:
+            events = execute_read_query(conn, select_event)
+            for event in events:
+                ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
+                ev_time = ev_time.date().strftime("%Y-%m-%d")
+                if ev_time == today:
                     ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
-                    ev_time = ev_time.date().strftime("%Y-%m-%d")
-                    if ev_time == today:
-                        ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
-                        ev_time = ev_time.time().strftime("%H:%M")
-                        if ev_time == totime:
-                            bot.send_message(message.from_user.id, event[2])
-                sleep(60)
+                    ev_time = ev_time.time().strftime("%H:%M")
+                    if ev_time == totime:
+                        bot.send_message(message.from_user.id, event[2])
         except :
             bot.send_message(message.from_user.id, '*звуки смэрти*')
-    th = Thread(target=chek_in)
-    th.start()
+    chek_in()
+    s.run()
+
 
 
 
@@ -156,7 +172,8 @@ def get_text_messages(message):
             db_event(user_id=us_id, event=mes, time=ev_time)
             bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}")
         except :
-            bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{datetime.now().strftime("%d/%m/%y %H:%M")} сходить покурить')
+            today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
+            bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')
 
 
 
