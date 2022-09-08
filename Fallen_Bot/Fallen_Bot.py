@@ -7,11 +7,11 @@ import datetime
 from datetime import date, datetime, tzinfo
 from datetime import timedelta, timezone
 import requests
-from threading import Thread
 from time import sleep
 from sqlite3 import Error
 import configparser
 import sched, time
+import random
 
 
 name = '';
@@ -65,17 +65,13 @@ def execute_read_query(connection, query):
 
 def delete_record():
     try:
-        while True:
-            today = datetime.now().strftime("%Y/%m/%d")
-            sql_delete_query = f"""DELETE from Events where Events.time < '{today}'"""
-            cursor.execute(sql_delete_query)
-            conn.commit()
-            sleep(86400)
+        today = datetime.now(tz).strftime("%Y/%m/%d")
+        sql_delete_query = f"""DELETE from Events where Events.time < '{today}'"""
+        cursor.execute(sql_delete_query)
+        conn.commit()
     except Error as e:
         print(f"The error '{e}' occurred")
-
-smert_thread = Thread(target=delete_record)
-smert_thread.start()
+        
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -84,8 +80,8 @@ def start_message(message):
         s.enter(60, 1, chek_in)
         try:
             us_id = message.from_user.id
-            today = datetime.now().strftime("%Y-%m-%d")
-            totime = datetime.now().strftime("%H:%M")
+            today = datetime.now(tz).strftime("%Y-%m-%d")
+            totime = datetime.now(tz).strftime("%H:%M")
             select_event = f"""
             SELECT *
             FROM
@@ -172,8 +168,24 @@ def get_text_messages(message):
             db_event(user_id=us_id, event=mes, time=ev_time)
             bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}")
         except :
-            today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
-            bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')
+            answer = random.randint(0, 5)
+            match answer:
+                case 0:
+                    bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
+                case 1:
+                    bot.send_message(message.from_user.id, "Что, писать разучился?")
+                case 2:
+                    bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.")
+                case 3:
+                    bot.send_message(message.from_user.id, "Думаешь это смешно?")
+                case 4:
+                    bot.send_message(message.from_user.id, "Слабоумие не лечится, да?")
+                case 5:
+                    today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
+                    bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')   
+                case _:
+                    bot.send_message(message.from_user.id, "СМЭРТ")
+            
 
 
 
