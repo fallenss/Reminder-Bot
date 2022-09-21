@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from ast import Or;
+from ast import Or
 import sqlite3
 import telebot;
 import datetime
-from datetime import date, datetime, tzinfo
+from datetime import date, datetime, tzinfo, time
 from datetime import timedelta, timezone
 import requests
 from time import sleep
@@ -12,6 +12,7 @@ from sqlite3 import Error
 import configparser
 import sched, time
 import random
+import re 
 
 
 name = '';
@@ -79,6 +80,7 @@ def start_message(message):
     def chek_in():
         s.enter(60, 1, chek_in)
         try:
+            delete_record()
             us_id = message.from_user.id
             today = datetime.now(tz).strftime("%Y-%m-%d")
             totime = datetime.now(tz).strftime("%H:%M")
@@ -153,38 +155,69 @@ def reg_message(message):
 @bot.message_handler(content_types=['text', 'document', 'audio'])
 def get_text_messages(message):
     #type_event = 0
-    if message.text.lower() == 'привет':
-        bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
+    if message.text.lower() == 'мяу':
+        bot.send_message(message.from_user.id, "Хуль ты мяучешь?")
     else:
-        try:
+        #try:
+            done = False
             us_id = message.from_user.id
             mes = message.text
-            mes = mes.split()
-            time_str = mes[0]+' '+mes[1]
-            mes[0]='';mes[1]=''
-            mes = " ".join(mes)
-            mes = mes.strip()
-            ev_time = datetime.strptime(time_str, "%d/%m/%y %H:%M")
-            db_event(user_id=us_id, event=mes, time=ev_time)
-            bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}")
-        except :
-            answer = random.randint(0, 5)
-            match answer:
-                case 0:
-                    bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
-                case 1:
-                    bot.send_message(message.from_user.id, "Что, писать разучился?")
-                case 2:
-                    bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.")
-                case 3:
-                    bot.send_message(message.from_user.id, "Думаешь это смешно?")
-                case 4:
-                    bot.send_message(message.from_user.id, "Слабоумие не лечится, да?")
-                case 5:
-                    today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
-                    bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')   
-                case _:
-                    bot.send_message(message.from_user.id, "СМЭРТ")
+            match = re.search(r'\d\d/\d\d/\d\d \d\d:\d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[0]+' '+mes[1]
+                mes[0]='';mes[1]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                ev_time = datetime.strptime(time_str, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n/start")
+                done = True
+            match = re.search(r'[в,В] \d\d:\d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[1]
+                mes[0]='';mes[1]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz).strftime("%d/%m/%y")
+                ev_time = today+' '+time_str
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n/start")
+                done = True
+            match = re.search(r'[в,В] \d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[1]
+                mes[0]='';mes[1]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz).strftime("%d/%m/%y")
+                ev_time = today+' '+time_str+':00'
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n/start")
+                done = True
+
+        #except :
+        #    answer = random.randint(0, 5)
+        #    match answer:
+        #        case 0:
+        #            bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
+        #        case 1:
+        #            bot.send_message(message.from_user.id, "Что, писать разучился?")
+        #        case 2:
+        #            bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.")
+        #        case 3:
+        #            bot.send_message(message.from_user.id, "Думаешь это смешно?")
+        #        case 4:
+        #            bot.send_message(message.from_user.id, "Слабоумие не лечится, да?")
+        #        case 5:
+        #            today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
+        #            bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')   
+        #        case _:
+        #            bot.send_message(message.from_user.id, "СМЭРТ")
             
 
 
