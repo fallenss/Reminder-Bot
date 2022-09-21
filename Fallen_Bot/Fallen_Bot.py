@@ -158,7 +158,7 @@ def get_text_messages(message):
     if message.text.lower() == 'мяу':
         bot.send_message(message.from_user.id, "Хуль ты мяучешь?")
     else:
-        #try:
+        try:
             done = False
             us_id = message.from_user.id
             mes = message.text
@@ -171,7 +171,6 @@ def get_text_messages(message):
                 mes = mes.strip()
                 ev_time = datetime.strptime(time_str, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
-                bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n/start")
                 done = True
             match = re.search(r'[в,В] \d\d:\d\d', mes)
             if match and done == False:
@@ -184,7 +183,6 @@ def get_text_messages(message):
                 ev_time = today+' '+time_str
                 ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
-                bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n/start")
                 done = True
             match = re.search(r'[в,В] \d\d', mes)
             if match and done == False:
@@ -197,27 +195,45 @@ def get_text_messages(message):
                 ev_time = today+' '+time_str+':00'
                 ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
-                bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n/start")
                 done = True
 
-        #except :
-        #    answer = random.randint(0, 5)
-        #    match answer:
-        #        case 0:
-        #            bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
-        #        case 1:
-        #            bot.send_message(message.from_user.id, "Что, писать разучился?")
-        #        case 2:
-        #            bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.")
-        #        case 3:
-        #            bot.send_message(message.from_user.id, "Думаешь это смешно?")
-        #        case 4:
-        #            bot.send_message(message.from_user.id, "Слабоумие не лечится, да?")
-        #        case 5:
-        #            today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
-        #            bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')   
-        #        case _:
-        #            bot.send_message(message.from_user.id, "СМЭРТ")
+            answer = random.randint(0, 6)
+            match answer:
+                case 0:
+                    bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n\n/start")
+                case 1:
+                    bot.send_message(message.from_user.id, f"А? Ладно, но сильно не обольщайся.\nВ {time_str} я скажу чтобы ты {mes}\n\n/start")
+                case 2:
+                    bot.send_message(message.from_user.id, f"В {time_str} так в {time_str}, без проблем.\n\n/start")
+                case 3:
+                    bot.send_message(message.from_user.id, f"Я не буду служить тебе вечно, но о {mes} скажу, так и быть.\n\n/start")
+                case 4:
+                    bot.send_message(message.from_user.id, f"Серьёзно? В {time_str}?\nТы хоть представляешь сколько...\nЛадно, забей... Всё будет.\n\n/start")
+                case 5:
+                    bot.send_message(message.from_user.id, f"Если бы мне платили каждый раз, когда я напоминал о том что нужно {mes}, меня здесь уже давно бы не было...\nОкей.\n\n/start")
+                case 4:
+                    bot.send_message(message.from_user.id, f"Во сколько? в {time_str}?\nНу, может быть и не забуду, гха-хаха...\n\n/start")
+                case _:
+                    bot.send_message(message.from_user.id, "СМЭРТ")            
+
+        except :
+            answer = random.randint(0, 5)
+            match answer:
+                case 0:
+                    bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
+                case 1:
+                    bot.send_message(message.from_user.id, "Что, писать разучился?")
+                case 2:
+                    bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.")
+                case 3:
+                    bot.send_message(message.from_user.id, "Думаешь это смешно?")
+                case 4:
+                    bot.send_message(message.from_user.id, "Слабоумие не лечится, да?")
+                case 5:
+                    today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
+                    bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')   
+                case _:
+                    bot.send_message(message.from_user.id, "СМЭРТ")
             
 
 
