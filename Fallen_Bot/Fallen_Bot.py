@@ -173,6 +173,7 @@ def get_text_messages(message):
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
             match = re.search(r'[в,В] \d\d:\d\d', mes)
+            
             if match and done == False:
                 mes = mes.split()
                 time_str = mes[1]
@@ -185,6 +186,7 @@ def get_text_messages(message):
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
             match = re.search(r'[в,В] \d\d', mes)
+            
             if match and done == False:
                 mes = mes.split()
                 time_str = mes[1]
@@ -220,18 +222,18 @@ def get_text_messages(message):
             answer = random.randint(0, 5)
             match answer:
                 case 0:
-                    bot.send_message(message.from_user.id, "Ты меня раздражаешь...")
+                    bot.send_message(message.from_user.id, "Ты меня раздражаешь...\n/help")
                 case 1:
-                    bot.send_message(message.from_user.id, "Что, писать разучился?")
+                    bot.send_message(message.from_user.id, "Что, писать разучился?\n/help")
                 case 2:
-                    bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.")
+                    bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.\n/help")
                 case 3:
-                    bot.send_message(message.from_user.id, "Думаешь это смешно?")
+                    bot.send_message(message.from_user.id, "Думаешь это смешно?\n/help")
                 case 4:
-                    bot.send_message(message.from_user.id, "Слабоумие не лечится, да?")
+                    bot.send_message(message.from_user.id, "Слабоумие не лечится, да?\n/help")
                 case 5:
                     today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
-                    bot.send_message(message.from_user.id, f'Нормально напиши, как в примере:\n{today} сходить покурить')   
+                    bot.send_message(message.from_user.id, f'Нормально напиши, как в /help')   
                 case _:
                     bot.send_message(message.from_user.id, "СМЭРТ")
             
