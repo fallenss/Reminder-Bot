@@ -76,11 +76,10 @@ def delete_record():
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.from_user.id, 'Чего тебе?');
+    bot.send_message(message.from_user.id, '*WORK IN PROGRESS*');
     def chek_in():
         s.enter(60, 1, chek_in)
         try:
-            delete_record()
             us_id = message.from_user.id
             today = datetime.now(tz).strftime("%Y-%m-%d")
             totime = datetime.now(tz).strftime("%H:%M")
@@ -102,6 +101,7 @@ def start_message(message):
                     ev_time = ev_time.time().strftime("%H:%M")
                     if ev_time == totime:
                         bot.send_message(message.from_user.id, event[2])
+            #delete_record() invalid           
         except :
             bot.send_message(message.from_user.id, '*звуки смэрти*')
     chek_in()
@@ -162,6 +162,7 @@ def get_text_messages(message):
             done = False
             us_id = message.from_user.id
             mes = message.text
+            
             match = re.search(r'\d\d/\d\d/\d\d \d\d:\d\d', mes)
             if match and done == False:
                 mes = mes.split()
@@ -172,8 +173,8 @@ def get_text_messages(message):
                 ev_time = datetime.strptime(time_str, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
+                
             match = re.search(r'[в,В] \d\d:\d\d', mes)
-            
             if match and done == False:
                 mes = mes.split()
                 time_str = mes[1]
@@ -185,8 +186,8 @@ def get_text_messages(message):
                 ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
+                
             match = re.search(r'[в,В] \d\d', mes)
-            
             if match and done == False:
                 mes = mes.split()
                 time_str = mes[1]
@@ -199,6 +200,35 @@ def get_text_messages(message):
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
 
+            match = re.search(r'[в,В] \d:\d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[1]
+                mes[0]='';mes[1]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz).strftime("%d/%m/%y")
+                ev_time = today+' '+time_str
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                done = True  
+                
+            match = re.search(r'[в,В] \d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[1]
+                mes[0]='';mes[1]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz).strftime("%d/%m/%y")
+                ev_time = today+' '+time_str+':00'
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                done = True   
+                
+            if done == False: 
+                raise Exception('Unsupported or invalid request')    
+                
             answer = random.randint(0, 6)
             match answer:
                 case 0:
@@ -213,7 +243,7 @@ def get_text_messages(message):
                     bot.send_message(message.from_user.id, f"Серьёзно? В {time_str}?\nТы хоть представляешь сколько...\nЛадно, забей... Всё будет.\n\n/start")
                 case 5:
                     bot.send_message(message.from_user.id, f"Если бы мне платили каждый раз, когда я напоминал о том что нужно {mes}, меня здесь уже давно бы не было...\nОкей.\n\n/start")
-                case 4:
+                case 6:
                     bot.send_message(message.from_user.id, f"Во сколько? в {time_str}?\nНу, может быть и не забуду, гха-хаха...\n\n/start")
                 case _:
                     bot.send_message(message.from_user.id, "СМЭРТ")            
