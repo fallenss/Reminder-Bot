@@ -158,7 +158,7 @@ def get_text_messages(message):
     if message.text.lower() == 'мяу':
         bot.send_message(message.from_user.id, "Хуль ты мяучешь?")
     else:
-        try:
+        #try:
             done = False
             us_id = message.from_user.id
             mes = message.text
@@ -173,6 +173,20 @@ def get_text_messages(message):
                 ev_time = datetime.strptime(time_str, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
+
+            match = re.search(r'[З,з]автра [в,В] \d\d:\d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[2]
+                mes[0]='';mes[1]='';mes[2]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz)
+                today = today + timedelta(days=1)
+                ev_time = today.strftime("%d/%m/%y")+' '+time_str
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                done = True
                 
             match = re.search(r'[в,В] \d\d:\d\d', mes)
             if match and done == False:
@@ -183,6 +197,20 @@ def get_text_messages(message):
                 mes = mes.strip()
                 today = datetime.now(tz).strftime("%d/%m/%y")
                 ev_time = today+' '+time_str
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                done = True
+
+            match = re.search(r'[З,з]автра [в,В] \d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[2]
+                mes[0]='';mes[1]='';mes[2]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz)
+                today = today + timedelta(days=1)
+                ev_time = today.strftime("%d/%m/%y")+' '+time_str+':00'
                 ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
@@ -200,6 +228,20 @@ def get_text_messages(message):
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True
 
+            match = re.search(r'[З,з]автра [в,В] \d:\d\d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[2]
+                mes[0]='';mes[1]='';mes[2]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz)
+                today = today + timedelta(days=1)
+                ev_time = today.strftime("%d/%m/%y")+' '+time_str
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                done = True
+
             match = re.search(r'[в,В] \d:\d\d', mes)
             if match and done == False:
                 mes = mes.split()
@@ -212,6 +254,20 @@ def get_text_messages(message):
                 ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
                 db_event(user_id=us_id, event=mes, time=ev_time)
                 done = True  
+
+            match = re.search(r'[З,з]автра [в,В] \d', mes)
+            if match and done == False:
+                mes = mes.split()
+                time_str = mes[2]
+                mes[0]='';mes[1]='';mes[2]=''
+                mes = " ".join(mes)
+                mes = mes.strip()
+                today = datetime.now(tz)
+                today = today + timedelta(days=1)
+                ev_time = today.strftime("%d/%m/%y")+' '+time_str+':00'
+                ev_time = datetime.strptime(ev_time, "%d/%m/%y %H:%M")
+                db_event(user_id=us_id, event=mes, time=ev_time)
+                done = True
                 
             match = re.search(r'[в,В] \d', mes)
             if match and done == False:
@@ -248,24 +304,24 @@ def get_text_messages(message):
                 case _:
                     bot.send_message(message.from_user.id, "СМЭРТ")            
 
-        except :
-            answer = random.randint(0, 5)
-            match answer:
-                case 0:
-                    bot.send_message(message.from_user.id, "Ты меня раздражаешь...\n/help")
-                case 1:
-                    bot.send_message(message.from_user.id, "Что, писать разучился?\n/help")
-                case 2:
-                    bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.\n/help")
-                case 3:
-                    bot.send_message(message.from_user.id, "Думаешь это смешно?\n/help")
-                case 4:
-                    bot.send_message(message.from_user.id, "Слабоумие не лечится, да?\n/help")
-                case 5:
-                    today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
-                    bot.send_message(message.from_user.id, f'Нормально напиши, как в /help')   
-                case _:
-                    bot.send_message(message.from_user.id, "СМЭРТ")
+        #except :
+        #    answer = random.randint(0, 5)
+        #    match answer:
+        #        case 0:
+        #            bot.send_message(message.from_user.id, "Ты меня раздражаешь...\n/help")
+        #        case 1:
+        #            bot.send_message(message.from_user.id, "Что, писать разучился?\n/help")
+        #        case 2:
+        #            bot.send_message(message.from_user.id, "Фиктивный, моё терпение не безгранично.\n/help")
+        #        case 3:
+        #            bot.send_message(message.from_user.id, "Думаешь это смешно?\n/help")
+        #        case 4:
+        #            bot.send_message(message.from_user.id, "Слабоумие не лечится, да?\n/help")
+        #        case 5:
+        #            today = datetime.now(tz).strftime("%d/%m/%y %H:%M")
+        #            bot.send_message(message.from_user.id, f'Нормально напиши, как в /help')   
+        #        case _:
+        #            bot.send_message(message.from_user.id, "СМЭРТ")
             
 
 
