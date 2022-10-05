@@ -66,7 +66,7 @@ def execute_read_query(connection, query):
 
 def delete_record():
     try:
-        today = datetime.now(tz).strftime("%Y/%m/%d")
+        today = datetime.now(tz).strftime("%Y-%m-%d")
         sql_delete_query = f"""DELETE from Events where Events.time < '{today}'"""
         cursor.execute(sql_delete_query)
         conn.commit()
@@ -101,7 +101,7 @@ def start_message(message):
                     ev_time = ev_time.time().strftime("%H:%M")
                     if ev_time == totime:
                         bot.send_message(message.from_user.id, event[2])
-            #delete_record() invalid           
+            delete_record()
         except :
             bot.send_message(message.from_user.id, '*звуки смэрти*')
     chek_in()
