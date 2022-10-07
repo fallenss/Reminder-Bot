@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from ast import Or
+from pickle import FALSE, TRUE
 import sqlite3
 import telebot;
 import datetime
@@ -72,40 +73,42 @@ def delete_record():
         conn.commit()
     except Error as e:
         print(f"The error '{e}' occurred")
-        
+
+     
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.from_user.id, '*WORK IN PROGRESS*');
+    bot.send_message(message.from_user.id, 'Чего тебе?');
     def chek_in():
-        s.enter(60, 1, chek_in)
-        try:
-            us_id = message.from_user.id
-            today = datetime.now(tz).strftime("%Y-%m-%d")
-            totime = datetime.now(tz).strftime("%H:%M")
-            select_event = f"""
-            SELECT *
-            FROM
-              Events
-            WHERE
-              Events.user_id = {us_id}
-            ORDER BY
-              time
-            """
-            events = execute_read_query(conn, select_event)
-            for event in events:
-                ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
-                ev_time = ev_time.date().strftime("%Y-%m-%d")
-                if ev_time == today:
+            s.enter(60, 1, chek_in)
+            try:
+                us_id = message.from_user.id
+                today = datetime.now(tz).strftime("%Y-%m-%d")
+                totime = datetime.now(tz).strftime("%H:%M")
+                select_event = f"""
+                SELECT *
+                FROM
+                  Events
+                WHERE
+                  Events.user_id = {us_id}
+                ORDER BY
+                  time
+                """
+                events = execute_read_query(conn, select_event)
+                for event in events:
                     ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
-                    ev_time = ev_time.time().strftime("%H:%M")
-                    if ev_time == totime:
-                        bot.send_message(message.from_user.id, event[2])
-            delete_record()
-        except :
-            bot.send_message(message.from_user.id, '*звуки смэрти*')
+                    ev_time = ev_time.date().strftime("%Y-%m-%d")
+                    if ev_time == today:
+                        ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
+                        ev_time = ev_time.time().strftime("%H:%M")
+                        if ev_time == totime:
+                            bot.send_message(message.from_user.id, event[2])
+                delete_record()
+            except :
+                bot.send_message(message.from_user.id, '*звуки смэрти*')
     chek_in()
     s.run()
+
 
 
 
@@ -151,10 +154,22 @@ def reg_message(message):
 #    question = 'Тебе '+str(age)+' лет, тебя зовут '+name+' '+surname+'?';
 #    bot.send_message(message.from_user.id, text=question, reply_markup=keyboard)
 
+chekin = False
+
+def start_chek(message):
+    global chekin
+    if chekin==False:
+        bot.send_message(message.from_user.id, f"{chekin}")
+        chekin = True
+        bot.send_message(message.from_user.id, f"{chekin}")
+        start_message(message)
+        
+
 
 @bot.message_handler(content_types=['text', 'document', 'audio'])
 def get_text_messages(message):
-    #type_event = 0
+
+
     if message.text.lower() == 'мяу':
         bot.send_message(message.from_user.id, "Хуль ты мяучешь?")
     else:
@@ -303,6 +318,10 @@ def get_text_messages(message):
                     bot.send_message(message.from_user.id, f"Во сколько? в {time_str}?\nНу, может быть и не забуду, гха-хаха...\n\n/start")
                 case _:
                     bot.send_message(message.from_user.id, "СМЭРТ")            
+
+
+            start_chek(message)
+ 
 
         #except :
         #    answer = random.randint(0, 5)
