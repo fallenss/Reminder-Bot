@@ -79,35 +79,7 @@ def delete_record():
 @bot.message_handler(commands=['start'])
 def start_message(message):
     bot.send_message(message.from_user.id, 'Чего тебе?');
-    def chek_in():
-            s.enter(60, 1, chek_in)
-            try:
-                us_id = message.from_user.id
-                today = datetime.now(tz).strftime("%Y-%m-%d")
-                totime = datetime.now(tz).strftime("%H:%M")
-                select_event = f"""
-                SELECT *
-                FROM
-                  Events
-                WHERE
-                  Events.user_id = {us_id}
-                ORDER BY
-                  time
-                """
-                events = execute_read_query(conn, select_event)
-                for event in events:
-                    ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
-                    ev_time = ev_time.date().strftime("%Y-%m-%d")
-                    if ev_time == today:
-                        ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
-                        ev_time = ev_time.time().strftime("%H:%M")
-                        if ev_time == totime:
-                            bot.send_message(message.from_user.id, event[2])
-                delete_record()
-            except :
-                bot.send_message(message.from_user.id, '*звуки смэрти*')
-    chek_in()
-    s.run()
+
 
 
 
@@ -118,7 +90,7 @@ def start_message(message):
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
-	bot.send_message(message.from_user.id, '/reg - Регистрация пользователя\nПримеры напоминаний (не рабочие, пока):\nв 12 покурить\nзавтра в 14 помацать\n25 в 10:20 возьми еды');
+	bot.send_message(message.from_user.id, '/reg - Регистрация пользователя\nПримеры напоминаний:\nв 12 покурить\nзавтра в 14 помацать\n25 в 10:20 возьми еды');
 @bot.message_handler(commands=['reg'])
 def reg_message(message):
     try:
@@ -156,13 +128,39 @@ def reg_message(message):
 
 chekin = False
 
-def start_chek(message):
+def chek(message):
     global chekin
     if chekin==False:
-        bot.send_message(message.from_user.id, f"{chekin}")
         chekin = True
-        bot.send_message(message.from_user.id, f"{chekin}")
-        start_message(message)
+        def chek_in():
+                s.enter(60, 1, chek_in)
+                try:
+                    us_id = message.from_user.id
+                    today = datetime.now(tz).strftime("%Y-%m-%d")
+                    totime = datetime.now(tz).strftime("%H:%M")
+                    select_event = f"""
+                    SELECT *
+                    FROM
+                      Events
+                    WHERE
+                      Events.user_id = {us_id}
+                    ORDER BY
+                      time
+                    """
+                    events = execute_read_query(conn, select_event)
+                    for event in events:
+                        ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
+                        ev_time = ev_time.date().strftime("%Y-%m-%d")
+                        if ev_time == today:
+                            ev_time = datetime.strptime(event[3], "%Y-%m-%d %H:%M:%S")
+                            ev_time = ev_time.time().strftime("%H:%M")
+                            if ev_time == totime:
+                                bot.send_message(message.from_user.id, event[2])
+                    delete_record()
+                except :
+                    bot.send_message(message.from_user.id, '*звуки смэрти*')
+        chek_in()
+        s.run()
         
 
 
@@ -303,24 +301,24 @@ def get_text_messages(message):
             answer = random.randint(0, 6)
             match answer:
                 case 0:
-                    bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}\n\n/start")
+                    bot.send_message(message.from_user.id, f"Хм, окей.\nЯ напомню тебе в {time_str} о {mes}.")
                 case 1:
-                    bot.send_message(message.from_user.id, f"А? Ладно, но сильно не обольщайся.\nВ {time_str} я скажу чтобы ты {mes}\n\n/start")
+                    bot.send_message(message.from_user.id, f"А? Ладно, но сильно не обольщайся.\nВ {time_str} я скажу чтобы ты {mes}.")
                 case 2:
-                    bot.send_message(message.from_user.id, f"В {time_str} так в {time_str}, без проблем.\n\n/start")
+                    bot.send_message(message.from_user.id, f"В {time_str} так в {time_str}, без проблем.")
                 case 3:
-                    bot.send_message(message.from_user.id, f"Я не буду служить тебе вечно, но о {mes} скажу, так и быть.\n\n/start")
+                    bot.send_message(message.from_user.id, f"Я не буду служить тебе вечно, но о {mes} скажу, так и быть.")
                 case 4:
-                    bot.send_message(message.from_user.id, f"Серьёзно? В {time_str}?\nТы хоть представляешь сколько...\nЛадно, забей... Всё будет.\n\n/start")
+                    bot.send_message(message.from_user.id, f"Серьёзно? В {time_str}?\nТы хоть представляешь сколько...\nЛадно, забей... Всё будет.")
                 case 5:
-                    bot.send_message(message.from_user.id, f"Если бы мне платили каждый раз, когда я напоминал о том что нужно {mes}, меня здесь уже давно бы не было...\nОкей.\n\n/start")
+                    bot.send_message(message.from_user.id, f"Если бы мне платили каждый раз, когда я напоминал о том что нужно {mes}, меня здесь уже давно бы не было...\nОкей.")
                 case 6:
-                    bot.send_message(message.from_user.id, f"Во сколько? в {time_str}?\nНу, может быть и не забуду, гха-хаха...\n\n/start")
+                    bot.send_message(message.from_user.id, f"Во сколько? в {time_str}?\nНу, может быть и не забуду, гха-хаха...")
                 case _:
                     bot.send_message(message.from_user.id, "СМЭРТ")            
 
 
-            start_chek(message)
+            chek(message)
  
 
         except :
