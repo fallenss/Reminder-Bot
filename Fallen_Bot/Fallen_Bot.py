@@ -81,16 +81,36 @@ def start_message(message):
     bot.send_message(message.from_user.id, 'Чего тебе?');
 
 
+def chek_all(message):
+      try:
+          event_all = "Я напомню тебе о:\n"
+          us_id = message.from_user.id
+          select_event = f"""
+                    SELECT *
+                    FROM
+                      Events
+                    WHERE
+                      Events.user_id = {us_id}
+                    ORDER BY
+                      time
+                    """
+          events = execute_read_query(conn, select_event)
+          for event in events:
+              event_all += event[3]+' '+event[2]+'\n'
+          bot.send_message(message.from_user.id, event_all)
+      except :
+          bot.send_message(message.from_user.id, '*звуки смэрти*')
 
 
 
-
-	
+@bot.message_handler(commands=['remi'])
+def help_message(message):
+    chek_all(message)
 
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
-	bot.send_message(message.from_user.id, '/reg - Регистрация пользователя\nПримеры напоминаний:\nв 12 покурить\nзавтра в 14 помацать\n25 в 10:20 возьми еды');
+	bot.send_message(message.from_user.id, '/reg - Регистрация пользователя\n/remi - Запланированные напоминания\nПримеры напоминаний:\nв 12 покурить\nзавтра в 14 помацать\n25 в 10:20 возьми еды');
 @bot.message_handler(commands=['reg'])
 def reg_message(message):
     try:
