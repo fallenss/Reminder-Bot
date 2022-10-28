@@ -42,11 +42,9 @@ class UTC3(tzinfo):
 tz = UTC3()
 
 def db_new_user(user_id: int, user_name: str, user_surname: str, username: str):
-    try:
-        cursor.execute('INSERT INTO Users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
-        conn.commit()
-    except Error as e:
-        print(f"The error '{e}' occurred")
+    cursor.execute('INSERT INTO Users (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
+    conn.commit()
+
 
 def db_event(user_id: int, event: str, time: datetime):
     try:
@@ -97,7 +95,10 @@ def chek_all(message):
           events = execute_read_query(conn, select_event)
           for event in events:
               event_all += event[3]+' '+event[2]+'\n'
-          bot.send_message(message.from_user.id, event_all)
+          if event_all !="Я напомню тебе о:\n":
+              bot.send_message(message.from_user.id, event_all)
+          else: bot.send_message(message.from_user.id, "Не о чем мне тебе напоминать.")
+
       except :
           bot.send_message(message.from_user.id, '*звуки смэрти*')
 
